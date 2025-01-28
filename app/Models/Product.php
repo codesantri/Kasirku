@@ -10,16 +10,7 @@ class Product extends Model
     protected $primaryKey = 'id';
     protected $filteredCount = 0;
 
-    protected $allowedFields = [
-        'name',
-        'code',
-        'stock',
-        'capital_price',
-        'sell_price',
-        'category_id',
-        'unit_id',
-        'image'
-    ];
+    protected $allowedFields = ['name','code','stock','capital_price','sell_price','category_id','unit_id','image'];
 
     public function filterProducts($search = null, $start = 0, $length = 0, $category = null, $unit = null)
     {
@@ -31,7 +22,8 @@ class Product extends Model
              products.code, 
              products.stock, 
              products.capital_price, 
-             products.sell_price, 
+             products.sell_price,
+             products.image, 
              categories.name as category_name, 
              units.name as unit_name'
             );

@@ -28,8 +28,8 @@ $routes->group('produk', ['namespace' => 'App\Controllers'], static function ($r
     $routes->post('getproducts', [ProductController::class, 'getProduk'], ['as' => 'get_produk']);
     $routes->get('create', [ProductController::class, 'create'], ['as' => 'produk_create']);
     $routes->post('store', [ProductController::class, 'store'], ['as' => 'produk_store']);
-    $routes->get('edit/(:num)', [ProductController::class, 'edit'], ['as' => 'produk_edit']);
-    $routes->post('update/(:num)', [ProductController::class, 'update'], ['as' => 'produk_update']);
+    $routes->get('edit/(:num)', [ProductController::class, 'edit/$1'], ['as' => 'produk_edit']);
+    $routes->post('update/(:num)', [ProductController::class, 'update/$1'], ['as' => 'produk_update']);
     $routes->delete('delete/(:num)', [ProductController::class, 'delete'], ['as' => 'produk_delete']);
     $routes->post('deletes', [ProductController::class, 'deletes'], ['as' => 'produk_deletes']);
 });

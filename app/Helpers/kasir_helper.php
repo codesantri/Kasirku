@@ -103,10 +103,12 @@ if (!function_exists('modalView')) {
     function modalView(
         string $id = '',
         array $data = [],
-        string $href = '#'
+        string $href = '#',
+        string $image = null,
     ) {
         // Cek jika ada gambar dalam data
-        $image = isset($data['image']) && !empty($data['image']) ? '<img class="img-fluid card-img-top" src="/' . $data['image'] . '" alt="Card image cap">' : '';
+        $imagePath = base_url('uploads/products/' . $image);
+        $imageView = isset($image) && !empty($image) ? '<img class="img-fluid card-img-top" src="' . $imagePath . '" alt="' . $image . '">' : '';
 
         // Buat form input untuk data lainnya
         $inputFields = '';
@@ -123,7 +125,7 @@ if (!function_exists('modalView')) {
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     </div>
                     <div class="modal-body">
-                        ' . $image . '
+                        ' . $imageView . '
                         ' . $inputFields . '
                     </div>
                     <div class="modal-footer">

@@ -16,6 +16,7 @@
                     ph: 'Masukkan Nama Produk',
                     attributes: []
                 ) ?>
+                
                 <?= inputText(
                     label: 'Kode Produk',
                     type: 'text',
@@ -25,6 +26,7 @@
                     ph: 'Masukkan Kode Produk',
                     attributes: ['']
                 ) ?>
+
                 <?= inputSelect(
                     name: 'unit_id',
                     options: $units,
@@ -70,12 +72,13 @@
                     ph: 'Masukkan Stok',
                     attributes: ['']
                 ) ?>
-                <input type="text" name="filefoto" class="dropify" data-height="300">
+
                 <?= inputUpload(
                     name: 'image',
                     label: 'Gambar Produk',
                     errors: session('errors.image') ?? '',
                 ) ?>
+
                 <?= btn_submit(base_url('/produk')) ?>
                 <?= form_close() ?>
             </div>
@@ -84,16 +87,3 @@
     </div>
 </div>
 <?= $this->endSection(); ?>
-
-<script>
-    $(document).ready(function() {
-        $('.dropify').dropify({
-            messages: {
-                default: 'Drag atau drop untuk memilih gambar',
-                replace: 'Ganti',
-                remove: 'Hapus',
-                error: 'error'
-            }
-        });
-    });
-</script>

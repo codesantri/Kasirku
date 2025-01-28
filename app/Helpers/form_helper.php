@@ -95,11 +95,12 @@ if (!function_exists('inputUpload')) {
     /**
      * Custom Input Upload for Image with Drag and Drop
      *
-     * @param string $name       Nama input
-     * @param string $value      Nilai default input
-     * @param string $errors     Pesan error jika ada
-     * @param string $label      Label untuk input
-     * @param array  $attributes Atribut tambahan untuk input
+     * @param string $name       Name of the input field
+     * @param string $value      Default value of the input
+     * @param string $errors     Error message, if any
+     * @param string $label      Label for the input
+     * @param array  $attributes Additional attributes for the input
+     * @param string $defaultFile URL of the default file
      * @return string
      */
     function inputUpload(
@@ -107,23 +108,28 @@ if (!function_exists('inputUpload')) {
         string $value = '',
         string $errors = '',
         string $label = '',
-        array $attributes = []
+        array $attributes = [],
+        string $defaultFile = ''
     ): string {
         $attrString = '';
         foreach ($attributes as $key => $val) {
             $attrString .= $key . '="' . htmlspecialchars($val, ENT_QUOTES) . '" ';
         }
         $errorClass = $errors ? 'is-invalid' : '';
+        $defaultFileAttr = $defaultFile ? 'data-default-file="' . htmlspecialchars($defaultFile, ENT_QUOTES) . '"' : '';
         return '
-            <div class="form-group">
-                <label for="' . htmlspecialchars($name, ENT_QUOTES) . '">' . htmlspecialchars($label, ENT_QUOTES) . '</label>
-                <div class="drop-zone my-4">
-                    <p>Drag & Drop your image here or <span>Browse</span></p>
-                    <input type="file" name="' . htmlspecialchars($name, ENT_QUOTES) . '" accept="image/*" ' . $attrString . ' hidden>
-                    <div class="preview-container"></div>
-                </div>
-                ' . ($errors ? '<small class="form-text text-danger">' . htmlspecialchars($errors, ENT_QUOTES) . '</small>' : '') . '
-            </div>
+        <div class="form-group">
+            ' . ($label ? '<label for="' . htmlspecialchars($name, ENT_QUOTES) . '">' . htmlspecialchars($label, ENT_QUOTES) . '</label>' : '') . '
+            <input 
+                type="file" 
+                id="' . htmlspecialchars($name, ENT_QUOTES) . '" 
+                class="dropify ' . $errorClass . '" 
+                name="' . htmlspecialchars($name, ENT_QUOTES) . '" 
+                accept="image/*" 
+                ' . $defaultFileAttr . ' 
+                ' . $attrString . '>
+            ' . ($errors ? '<small class="form-text text-danger">' . htmlspecialchars($errors, ENT_QUOTES) . '</small>' : '') . '
+        </div>
         ';
     }
 }
@@ -227,26 +233,26 @@ if (!function_exists('inputSelect')) {
                 name="' . htmlspecialchars($name, ENT_QUOTES) . '" ' . $attrString . '>
                 <option value="">Pilih ' . htmlspecialchars($title, ENT_QUOTES) . '</option>';
 
-                // Populate options dynamically
-                foreach ($options as $key => $option) {
-                    // Handle both simple and complex option structures
-                    $value = is_array($option) ? $option['value'] : $key;
-                    $label = is_array($option) ? $option['label'] : $option;
-                    $isSelected = ($value == $selected) ? 'selected' : '';
-                    $html .= '<option value="' . htmlspecialchars($value, ENT_QUOTES) . '" ' . $isSelected . '>' . htmlspecialchars($label, ENT_QUOTES) . '</option>';
-                }
+        // Populate options dynamically
+        foreach ($options as $key => $option) {
+            // Handle both simple and complex option structures
+            $value = is_array($option) ? $option['value'] : $key;
+            $label = is_array($option) ? $option['label'] : $option;
+            $isSelected = ($value == $selected) ? 'selected' : '';
+            $html .= '<option value="' . htmlspecialchars($value, ENT_QUOTES) . '" ' . $isSelected . '>' . htmlspecialchars($label, ENT_QUOTES) . '</option>';
+        }
 
-                // Close the select tag
-                $html .= '
+        // Close the select tag
+        $html .= '
             </select>';
 
-                // Add error message if exists
-                if ($errors) {
-                    $html .= '<small class="form-text text-danger">' . htmlspecialchars($errors, ENT_QUOTES) . '</small>';
-                }
+        // Add error message if exists
+        if ($errors) {
+            $html .= '<small class="form-text text-danger">' . htmlspecialchars($errors, ENT_QUOTES) . '</small>';
+        }
 
-                // Close the form group
-                $html .= '
+        // Close the form group
+        $html .= '
         </div>';
 
         return $html;
@@ -273,8 +279,3 @@ if (!function_exists('btn_submit')) {
         ';
     }
 }
-
-
-
-
-

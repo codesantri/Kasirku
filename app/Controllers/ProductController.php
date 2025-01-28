@@ -49,6 +49,7 @@ class ProductController extends BaseController
             $row->view = modalView(
                 id: esc($row->id),
                 href: route_to('produk_edit', $row->id),
+                image: $image,
                 data: [
                     "Kode Produk: " . esc($row->code),
                     "Nama Produk: " . esc($row->name),
@@ -57,7 +58,6 @@ class ProductController extends BaseController
                     "Harga Modal: " . rp(esc($row->capital_price)),
                     "Harga Jual: " . rp(esc($row->sell_price)),
                     "Stok: " . esc($row->stock),
-                    "Gambar: " . $image
                 ]
             );
             $row->edit = btnEdit(route_to('produk_edit', esc($row->id)));
@@ -88,86 +88,113 @@ class ProductController extends BaseController
 
         return view('pages/master-data/produk/create', $data);
     }
-
-    // Menyimpan produk baru
     public function store()
     {
-        var_dump($this->request->getFile('image'));
-        die();
         $this->validation->setRules([
-            'name'         => 'required|max_length[255]|is_unique[products.name]',
-            'category_id'   => 'required',
-            'unit_id'   => 'required',
-            'capital_price' => 'required|numeric',
-            'sell_price'    => 'required|numeric',
-            'stock'         => 'required|numeric',
-            'image'         => 'permit_empty|uploaded[image]|is_image[image]|max_size[image,2048]',
+            'name'          => 'required|max_length[255]|is_unique[products.name]',
+            'category_id'    => 'required',
+            'unit_id'        => 'required',
+            'capital_price'  => 'required|numeric',
+            'sell_price'     => 'required|numeric',
+            'stock'          => 'required|numeric',
+            'image'          => 'permit_empty|uploaded[image]|is_image[image]|max_size[image,2048]',
         ]);
 
+        // Run validation
         if (!$this->validation->withRequest($this->request)->run()) {
             return redirect()->to(route_to('produk_create'))
                 ->withInput()
                 ->with('errors', $this->validation->getErrors());
         }
-        $imageName = '';
-        $image = $this->request->getFile('image');
-        if ($image && $image->isValid()) {
-            $imageName = substr(bin2hex(random_bytes(4)), 0, 10) . '.' . $image->getClientExtension();
-            $image->move(WRITEPATH . 'uploads/products', $imageName);
+        $file = $this->request->getFile('image');
+        $imageName = null;
+        if ($file && $file->isValid()) {
+            $imageName = $file->getRandomName();
+            $file->move('uploads/products', $imageName);
         }
         $productData = [
             'name'          => $this->request->getPost('name'),
             'code'          => $this->request->getPost('code'),
             'category_id'   => $this->request->getPost('category_id'),
             'unit_id'       => $this->request->getPost('unit_id'),
-            'capital_price' => intval(str_replace('.', '', $this->request->getPost('capital_price'))),
-            'sell_price'    => intval(str_replace('.', '', $this->request->getPost('sell_price'))),
+            'capital_price' => intval(str_replace('.', '', $this->request->getPost('capital_price'))),  // Format price
+            'sell_price'    => intval(str_replace('.', '', $this->request->getPost('sell_price'))),  // Format price
             'stock'         => $this->request->getPost('stock'),
-            'image'         => $imageName,
+            'image'         => $imageName,  // Include image name
         ];
-
         if ($this->product->save($productData)) {
             session()->setFlashdata('success', 'Produk berhasil disimpan!');
         } else {
             session()->setFlashdata('error', 'Produk gagal disimpan.');
         }
-
         return redirect()->to(base_url('/produk'));
     }
 
 
-    // Memperbarui produk
+
+    public function edit(int $id)
+    {
+        $data = [
+            'title' => 'Ubah Produk',
+            'action' => route_to('produk_store'),
+            'categories' => array_column($this->category->findAll(), 'name', 'id'),
+            'units' => array_column($this->unit->findAll(), 'name', 'id'),
+            'product' => $this->product->where('id', $id)->first(),
+        ];
+
+        return view('pages/master-data/produk/edit', $data);
+    }
+
+
     public function update(int $id)
     {
         $product = $this->product->find($id);
-
         if (!$product) {
             return redirect()->to(base_url('/produk'))
                 ->with('error', 'Produk tidak ditemukan.');
         }
-
         $this->validation->setRules([
             'name' => 'required|min_length[3]|max_length[255]|is_unique[products.name,id,' . $id . ']',
+            'code' => 'required|alpha_numeric|min_length[3]|max_length[50]|is_unique[products.code,id,' . $id . ']',
+            'unit_id' => 'required',
+            'category_id' => 'required',
+            'capital_price' => 'required',
+            'sell_price' => 'required',
+            'stock' => 'required|integer',
+            'image' => 'permit_empty|uploaded[image]|is_image[image]|max_size[image,2048]',
         ]);
-
         if (!$this->validation->withRequest($this->request)->run()) {
-            return redirect()->to(base_url('/produk'))
+            return redirect()->back()
                 ->withInput()
                 ->with('errors', $this->validation->getErrors());
         }
-
-        $product['name'] = $this->request->getPost('name');
-
-        if ($this->product->save($product)) {
+        $dataToUpdate = [
+            'id' => $id,
+            'name' => $this->request->getPost('name'),
+            'code' => $this->request->getPost('code'),
+            'unit_id' => $this->request->getPost('unit_id'),
+            'category_id' => $this->request->getPost('category_id'),
+            'capital_price' => (int) preg_replace('/[^\d]/', '', $this->request->getPost('capital_price')),
+            'sell_price' => (int) preg_replace('/[^\d]/', '', $this->request->getPost('sell_price')),
+            'stock' => $this->request->getPost('stock'),
+        ];
+        $file = $this->request->getFile('image');
+        if ($file && $file->isValid()) {
+            $fileName = $file->getRandomName();
+            $file->move('uploads/products', $fileName);
+            $dataToUpdate['image'] = $fileName;
+            if ($product['image'] && file_exists('uploads/products/' . $product['image'])) {
+                unlink('uploads/products/' . $product['image']);
+            }
+        }
+        if ($this->product->save($dataToUpdate)) {
             session()->setFlashdata('success', 'Produk berhasil diubah!');
         } else {
             session()->setFlashdata('error', 'Produk gagal diubah.');
         }
-
         return redirect()->to(base_url('/produk'));
     }
 
-    // Menghapus produk
     public function delete(int $id)
     {
         $product = $this->product->find($id);
@@ -176,41 +203,48 @@ class ProductController extends BaseController
             return redirect()->to(base_url('/produk'))
                 ->with('error', 'Produk tidak ditemukan.');
         }
-
-        if ($this->product->delete($id)) {
-            session()->setFlashdata('success', 'Produk berhasil dihapus!');
-        } else {
-            session()->setFlashdata('error', 'Produk gagal dihapus.');
+        $imagePath = WRITEPATH . 'uploads/products/' . $product['image'];
+        try {
+            if (!empty($product['image']) && is_file($imagePath)) {
+                unlink($imagePath);
+            }
+            if ($this->product->delete($id)) {
+                session()->setFlashdata('success', 'Produk berhasil dihapus!');
+            } else {
+                session()->setFlashdata('error', 'Produk gagal dihapus.');
+            }
+        } catch (\Exception $e) {
+            session()->setFlashdata('error', 'Terjadi kesalahan saat menghapus produk: ' . $e->getMessage());
         }
-
         return redirect()->to(base_url('/produk'));
     }
+
 
     public function deletes()
     {
         $ids = $this->request->getPost('ids');
-
         if (empty($ids)) {
             return $this->response->setJSON(['success' => false, 'message' => 'Tidak ada produk yang dipilih.']);
         }
-
         try {
             $deletedCount = 0;
             $failedIds = [];
             foreach ($ids as $id) {
                 $product = $this->product->find($id);
+
                 if (!$product) {
-                    $failedIds[] = $id; // Menambahkan ID yang tidak ditemukan
+                    $failedIds[] = $id;
                     continue;
                 }
-
+                if (!empty($product['image']) && file_exists('uploads/products/' . $product['image'])) {
+                    unlink('uploads/products/' . $product['image']);  // Delete the image from the server
+                }
                 if ($this->product->delete($id)) {
                     $deletedCount++;
                 } else {
                     $failedIds[] = $id;
                 }
             }
-
             if ($deletedCount > 0) {
                 $message = $deletedCount . ' produk berhasil dihapus.';
                 if (!empty($failedIds)) {

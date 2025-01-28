@@ -17,7 +17,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/2.2.1/css/dataTables.bootstrap4.css"> -->
         <link rel="stylesheet" href="<?= base_url('css/datatables.min.css') ?>">
-        <link rel="stylesheet" href="<?= base_url('css/mystyle.css') ?>">
+        <link rel="stylesheet" href="<?= base_url('css/dropify.min.css') ?>">
     </head>
 
     <body>
@@ -49,6 +49,7 @@
         <script src="<?= base_url('assets/js/plugins/prism.js') ?>"></script>
         <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
         <script src="<?= base_url('js/datatables.min.js') ?>"></script>
+        <script src="<?= base_url('js/dropify.min.js') ?>"></script>
         <script src="<?= base_url('js/myscritp.js') ?>"></script>
         <?= $this->include('components/flash') ?>
         <?= $this->renderSection('script'); ?>
