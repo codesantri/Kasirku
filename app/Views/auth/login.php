@@ -1,4 +1,4 @@
-<?= $this->include('layouts/head') ?>
+<?= $this->include('layouts/header') ?>
 <!-- [ auth-signin ] start -->
 <div class="auth-wrapper">
     <div class="auth-content text-center">
@@ -19,11 +19,11 @@
                             <input type="checkbox" class="custom-control-input" id="customCheck1">
                             <label class="custom-control-label" for="customCheck1">Ingatkan Saya</label>
                         </div> -->
-                        <a href="<?= base_url('/') ?>" class="btn btn-block btn-primary text-white mb-4">Signin</a>
+                        <a href="<?= route_to('dashboard') ?>" class="btn btn-block btn-primary text-white mb-4">Signin</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-<?= $this->include('layouts/foot') ?>
+<?= $this->include('layouts/footer') ?>

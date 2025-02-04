@@ -3,13 +3,13 @@
         <label>Menu</label>
     </li>
     <?= linka(
-        href: '/',
+        href: route_to('dashboard'),
         icon: 'fa-house',
         label: 'Dashboard',
         active: 'active'
     ) ?>
     <?= linka(
-        href: '/penjualan',
+        href: route_to('home_product'),
         icon: 'fa-cash-register',
         label: 'Penjualan',
         active: 'active'
@@ -27,9 +27,9 @@
     ); ?>
 
     <?= linka(
-        href: '/gudang',
+        href: route_to('stock_index'),
         icon: 'fa-truck-fast',
-        label: 'Gudang',
+        label: 'Stoker',
         active: 'active'
     ) ?>
 

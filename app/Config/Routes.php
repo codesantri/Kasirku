@@ -5,11 +5,10 @@ use App\Controllers\CartController;
 use App\Controllers\UnitController;
 use App\Controllers\ProductController;
 use App\Controllers\CategoryController;
-use App\Controllers\Home;
+use App\Controllers\DashboardController;
 use App\Controllers\HomeController;
 use App\Controllers\PaymenController;
-use App\Controllers\SaleController;
-use App\Models\Cart;
+use App\Controllers\StockController;
 use CodeIgniter\Router\RouteCollection;
 
 /**
@@ -39,7 +38,7 @@ $routes->get('/invoice/(:segment)', [PaymenController::class, 'invoice'], ['as' 
 
 
 
-$routes->get('/dashboard', 'Home::index');
+$routes->get('/dashboard', [DashboardController::class, 'index'], ['as' => 'dashboard']);
 $routes->group('/admin/kategori', static function ($route) {
     // GET
     $route->get('/', [CategoryController::class, 'index'], ['as' => 'category_index']);
@@ -75,4 +74,15 @@ $routes->group('admin/produk', static function ($route) {
     $route->post('update/(:num)', [ProductController::class, 'update/$1'], ['as' => 'produk_update']);
     $route->delete('delete/(:num)', [ProductController::class, 'delete'], ['as' => 'produk_delete']);
     $route->post('deletes', [ProductController::class, 'deletes'], ['as' => 'produk_deletes']);
+});
+
+$routes->group('admin/stok', static function ($route) {
+    $route->get('', [StockController::class, 'index'], ['as' => 'stock_index']);
+    $route->post('getstock', [StockController::class, 'getStock'], ['as' => 'get_stock']);
+    $route->get('create', [StockController::class, 'create'], ['as' => 'stock_create']);
+    $route->post('store', [StockController::class, 'store'], ['as' => 'stock_store']);
+    $route->get('edit/(:num)', [StockController::class, 'edit/$1'], ['as' => 'stock_edit']);
+    $route->post('update/(:num)', [StockController::class, 'update/$1'], ['as' => 'stock_update']);
+    $route->delete('delete/(:num)', [StockController::class, 'delete/$1'], ['as' => 'stock_delete']);
+    $route->post('deletes', [StockController::class, 'deletes'], ['as' => 'stock_deletes']);
 });

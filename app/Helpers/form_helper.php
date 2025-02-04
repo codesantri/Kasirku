@@ -335,3 +335,58 @@ if (!function_exists('inputRadio')) {
         return $html;
     }
 }
+
+if (!function_exists('inputSelectTwo')) {
+    /**
+     * Generate a dynamic HTML select element using Select2
+     *
+     * @param string $name Nama atribut `name` untuk elemen select
+     * @param array $options Pilihan dalam bentuk array ['value' => 'label'] atau [['value' => ..., 'label' => ...]]
+     * @param mixed $selected Nilai yang dipilih (opsional)
+     * @param string $title Label untuk select element
+     * @param string $errors Pesan error jika ada
+     * @param array $attributes Atribut tambahan untuk elemen select (opsional)
+     * @return string HTML select element
+     */
+    function inputSelectTwo(
+        string $name = '',
+        array $options = [],
+        string $selected = '',
+        string $title = '',
+        string $errors = '',
+        array $attributes = []
+    ): string {
+        // Generate additional attributes string
+        $attrString = '';
+        foreach ($attributes as $key => $val) {
+            $attrString .= htmlspecialchars($key, ENT_QUOTES) . '="' . htmlspecialchars($val, ENT_QUOTES) . '" ';
+        }
+
+        // Error class for invalid input
+        $errorClass = $errors ? 'is-invalid' : '';
+
+        // Start building the select HTML
+        $html = '<div class="form-group">';
+        $html .= '<label for="' . htmlspecialchars($name, ENT_QUOTES) . '">' . htmlspecialchars($title, ENT_QUOTES) . '</label>';
+        $html .= '<select class="form-control select-two ' . $errorClass . '" id="' . htmlspecialchars($name, ENT_QUOTES) . '" name="' . htmlspecialchars($name, ENT_QUOTES) . '" ' . $attrString . '>';
+        $html .= '<option value="">Pilih ' . htmlspecialchars($title, ENT_QUOTES) . '</option>';
+
+        // Populate options dynamically
+        foreach ($options as $key => $option) {
+            $value = is_array($option) ? $option['value'] : $key;
+            $label = is_array($option) ? $option['label'] : $option;
+            $isSelected = ($value == $selected) ? 'selected' : '';
+            $html .= '<option value="' . htmlspecialchars($value, ENT_QUOTES) . '" ' . $isSelected . '>' . htmlspecialchars($label, ENT_QUOTES) . '</option>';
+        }
+
+        $html .= '</select>';
+
+        // Add error message if exists
+        if ($errors) {
+            $html .= '<small class="form-text text-danger">' . htmlspecialchars($errors, ENT_QUOTES) . '</small>';
+        }
+
+        $html .= '</div>'; // Close form-group
+        return $html;
+    }
+}

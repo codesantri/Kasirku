@@ -131,8 +131,6 @@ class ProductController extends BaseController
         return redirect()->to(base_url('/produk'));
     }
 
-
-
     public function edit(int $id)
     {
         $data = [

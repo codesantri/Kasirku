@@ -15,6 +15,8 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
         <link rel="stylesheet" href="<?= base_url('css/datatables.min.css') ?>">
         <link rel="stylesheet" href="<?= base_url('css/dropify.min.css') ?>">
+        <link rel="stylesheet" href="<?= base_url('css/select2.min.css') ?>">
+        <link rel="stylesheet" href="<?= base_url('css/select2-bootstrap.min.css') ?>">
         <?= $this->renderSection('css'); ?>
     </head>
 

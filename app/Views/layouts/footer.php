@@ -6,6 +6,7 @@
        <script src="<?= base_url('js/datatables.min.js') ?>"></script>
        <script src="<?= base_url('js/dropify.min.js') ?>"></script>
        <script src="<?= base_url('js/myscritp.js') ?>"></script>
+       <script src="<?= base_url('js/select2.min.js') ?>"></script>
        <?= $this->include('components/flash') ?>
        <?= $this->renderSection('script'); ?>
        <!-- <script>

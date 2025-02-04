@@ -5,6 +5,8 @@ namespace App\Controllers;
 use App\Models\Cart;
 use App\Models\Unit;
 use App\Models\Product;
+use App\Models\Category;
+use App\Models\Sale;
 use App\Controllers\BaseController;
 
 class HomeController extends BaseController
@@ -13,17 +15,56 @@ class HomeController extends BaseController
     protected $category;
     protected $unit;
     protected $cart;
+    protected $sale;
 
     public function __construct()
     {
         $this->product = new Product();
-        $this->category = new Product();
+        $this->category = new Category();
         $this->unit = new Unit();
+        $this->sale = new Sale();
     }
 
     public function index()
     {
-        return view('pages/home/index');
+        // Menghitung jumlah produk dan total stok
+        $countProduct = $this->product->builder()->countAllResults();
+        $totalStock = $this->product->builder()->selectSum('stock')->get()->getRow()->stock ?? 0;
+        $totalCapital = $this->product->builder()->selectSum('capital_price')->get()->getRow()->capital_price ?? 0;
+        $totalRevenue = $this->sale->builder()->selectSum('total')->get()->getRow()->total ?? 0;
+        $totalProfit = $this->sale->builder()->where('status', 'cash')->selectSum('total')->get()->getRow()->total ?? 0;
+
+        // Menghitung selisih dan persentase
+        $difference = $totalRevenue - $totalCapital;
+        $percentageDifference = ($totalCapital > 0) ? ($difference / $totalCapital) * 100 : 0;
+
+        // Tanggal hari ini, minggu ini, bulan ini, tahun ini
+        $today = date('Y-m-d');
+        $startOfWeek = date('Y-m-d', strtotime('monday this week'));
+        $startOfMonth = date('Y-m-01');
+        $startOfYear = date('Y-01-01');
+
+        // Menghitung total pendapatan berdasarkan periode waktu
+        $revenueToday = $this->sale->builder()->where('DATE(created_at)', $today)->selectSum('total')->get()->getRow()->total ?? 0;
+        $revenueThisWeek = $this->sale->builder()->where('DATE(created_at) >=', $startOfWeek)->selectSum('total')->get()->getRow()->total ?? 0;
+        $revenueThisMonth = $this->sale->builder()->where('DATE(created_at) >=', $startOfMonth)->selectSum('total')->get()->getRow()->total ?? 0;
+        $revenueThisYear = $this->sale->builder()->where('DATE(created_at) >=', $startOfYear)->selectSum('total')->get()->getRow()->total ?? 0;
+
+        $data = [
+            'countProduct' => $countProduct,
+            'totalStock' => $totalStock,
+            'totalCapital' => $totalCapital,
+            'totalRevenue' => $totalRevenue,
+            'totalProfit' => $totalProfit,
+            'difference' => $difference,
+            'percentageDifference' => round($percentageDifference, 2), // Dibulatkan ke 2 angka desimal
+            'revenueToday' => $revenueToday,
+            'revenueThisWeek' => $revenueThisWeek,
+            'revenueThisMonth' => $revenueThisMonth,
+            'revenueThisYear' => $revenueThisYear
+        ];
+
+        return view('pages/home/index', $data);
     }
 
     public function products()

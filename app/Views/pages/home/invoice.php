@@ -18,7 +18,7 @@
                 <?php if ($sale['status'] == 'cash'): ?>
                     <span class="badge bg-success">Tunai</span>
                 <?php else : ?>
-                    <span class="badge bg-success">Hutang</span>
+                    <span class="badge bg-warning">Hutang</span>
                 <?php endif; ?>
             </p>
         </div>

@@ -127,7 +127,7 @@ class PaymenController extends BaseController
     {
         $sale = $this->sale
             ->select('sales.*, users.name as user_name')
-            ->join('users', 'users.id = sales.user_id', 'left') // Join ke tabel users
+            ->join('users', 'users.id = sales.user_id', 'left')
             ->where('invoice', $invoice)
             ->first();
 
@@ -137,7 +137,7 @@ class PaymenController extends BaseController
         $invoice = $this->saleDetail
             ->select('sale_details.*, products.name as product_name, products.sell_price as product_price, units.name as unit_name')
             ->join('products', 'products.id = sale_details.product_id', 'left')
-            ->join('units', 'units.id = products.unit_id', 'left') // Relasi ke tabel units
+            ->join('units', 'units.id = products.unit_id', 'left')
             ->where('sale_id', $sale['id'])
             ->findAll();
         return view('pages/home/invoice', compact('sale', 'invoice'));
