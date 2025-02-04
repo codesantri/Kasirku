@@ -9,7 +9,7 @@
         active: 'active'
     ) ?>
     <?= linka(
-        href: '/sale',
+        href: '/penjualan',
         icon: 'fa-cash-register',
         label: 'Penjualan',
         active: 'active'
@@ -20,9 +20,9 @@
         icon: 'fa-database',
         // active: 'active',
         submenu: [
-            'Produk' => '/produk',
-            'Kategori' => '/kategori',
-            'Satuan' => '/satuan',
+            'Produk' => route_to('produk_index'),
+            'Kategori' => route_to('category_index'),
+            'Satuan' => route_to('unit_index'),
         ]
     ); ?>
 

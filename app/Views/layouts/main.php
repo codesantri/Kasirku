@@ -1,8 +1,14 @@
 <?= $this->include('layouts/header') ?>
-<?= $this->include('components/sidebar') ?>
+<style>
+    td.dt-empty {
+        display: none !important;
+    }
+</style>
+<?= $this->include('components/topbar') ?>
 <?= $this->include('components/header') ?>
+
 <div class="pcoded-main-container">
-    <div class="pcoded-wrapper">
+    <div class="pcoded-wrapper container">
         <div class="pcoded-content">
             <div class="pcoded-inner-content">
                 <div class="main-body">

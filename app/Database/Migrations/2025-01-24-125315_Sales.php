@@ -9,39 +9,56 @@ class Sales extends Migration
     public function up()
     {
         $this->forge->addField([
-            'id'            => [
+            'id' => [
                 'type'           => 'INT',
                 'constraint'     => 11,
                 'unsigned'       => true,
                 'auto_increment' => true,
             ],
-
-            'invoice'       => [
-                'type'           => 'VARCHAR',
-                'constraint'     => 100,
+            'user_id' => [
+                'type'       => 'INT',
+                'constraint' => 11,
+                'unsigned'   => true,
+                'default'    => null,
             ],
-
-            'total'         => [
-                'type'           => 'INT',
-                'constraint'     => 11,
-                'unsigned'       => true,
+            'customer_id' => [
+                'type'       => 'INT',
+                'constraint' => 11,
+                'unsigned'   => true,
+                'null'       => true,
             ],
-
-            'status'        => [
-                'type'           => 'ENUM',
-                'constraint'     => ['cash', 'debt'],
-                'default'        => 'cash',
+            'invoice' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 100,
             ],
-
-            'created_at'    => [
-                'type'           => 'DATETIME',
-                'null'           => true,
+            'total' => [
+                'type'       => 'INT',
+                'constraint' => 11,
+                'unsigned'   => true,
             ],
-
-            'updated_at'    => [
-                'type'           => 'DATETIME',
-                'null'           => true,
-            ]
+            'cash' => [
+                'type'       => 'INT',
+                'constraint' => 11,
+                'null'       => true,
+            ],
+            'change' => [
+                'type'       => 'INT',
+                'constraint' => 11,
+                'null'       => true,
+            ],
+            'status' => [
+                'type'       => 'ENUM',
+                'constraint' => ['cash', 'debt'],
+                'default'    => 'cash',
+            ],
+            'created_at' => [
+                'type' => 'DATETIME',
+                'null' => true,
+            ],
+            'updated_at' => [
+                'type' => 'DATETIME',
+                'null' => true,
+            ],
         ]);
         $this->forge->addKey('id', true);
         $this->forge->createTable('sales');

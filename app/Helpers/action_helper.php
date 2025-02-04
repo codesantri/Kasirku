@@ -9,7 +9,7 @@ if (!function_exists('btnDelete')) {
             ' . csrf_field() . '
             <input type="hidden" name="_method" value="DELETE">
             <button type="button" class="btn btn-danger btn-sm" onclick="deleteConfirmed(this, \'' . $dataName . '\')">
-                <i class="fa-regular fa-circle-xmark"></i>
+                <i class="fa-solid fa-trash"></i>
             </button>
         </form>
         <script>

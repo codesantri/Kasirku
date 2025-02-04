@@ -90,7 +90,7 @@ class ProductSeeder extends Seeder
                 'capital_price' => $faker->numberBetween(5000, 50000),
                 'sell_price'    => $faker->numberBetween(7000, 70000),
                 'stock'         => $faker->numberBetween(10, 100),
-                'image'         => $faker->imageUrl(640, 480, 'business', true),
+                'image'         => null,
                 'created_at'    => $faker->dateTimeThisDecade()->format('Y-m-d H:i:s'),  // konversi DateTime ke string
                 'updated_at'    => $faker->dateTimeThisDecade()->format('Y-m-d H:i:s'),  // konversi DateTime ke string
             ];

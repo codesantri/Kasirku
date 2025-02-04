@@ -29,7 +29,8 @@ class ProductController extends BaseController
     {
         $categories = $this->category->get()->getResult();
         $units = $this->unit->get()->getResult();
-        return view('pages/master-data/produk/index', compact('categories', 'units'));
+        $title = 'Data Produk';
+        return view('pages/product/index', compact('categories', 'units', 'title'));
     }
 
     public function getProduk()
@@ -86,7 +87,7 @@ class ProductController extends BaseController
             'units' => array_column($this->unit->findAll(), 'name', 'id'),
         ];
 
-        return view('pages/master-data/produk/create', $data);
+        return view('pages/product/create', $data);
     }
     public function store()
     {
@@ -142,7 +143,7 @@ class ProductController extends BaseController
             'product' => $this->product->where('id', $id)->first(),
         ];
 
-        return view('pages/master-data/produk/edit', $data);
+        return view('pages/product/edit', $data);
     }
 
 
@@ -217,45 +218,5 @@ class ProductController extends BaseController
             session()->setFlashdata('error', 'Terjadi kesalahan saat menghapus produk: ' . $e->getMessage());
         }
         return redirect()->to(base_url('/produk'));
-    }
-
-
-    public function deletes()
-    {
-        $ids = $this->request->getPost('ids');
-        if (empty($ids)) {
-            return $this->response->setJSON(['success' => false, 'message' => 'Tidak ada produk yang dipilih.']);
-        }
-        try {
-            $deletedCount = 0;
-            $failedIds = [];
-            foreach ($ids as $id) {
-                $product = $this->product->find($id);
-
-                if (!$product) {
-                    $failedIds[] = $id;
-                    continue;
-                }
-                if (!empty($product['image']) && file_exists('uploads/products/' . $product['image'])) {
-                    unlink('uploads/products/' . $product['image']);  // Delete the image from the server
-                }
-                if ($this->product->delete($id)) {
-                    $deletedCount++;
-                } else {
-                    $failedIds[] = $id;
-                }
-            }
-            if ($deletedCount > 0) {
-                $message = $deletedCount . ' produk berhasil dihapus.';
-                if (!empty($failedIds)) {
-                    $message .= ' Beberapa produk gagal dihapus: ' . implode(', ', $failedIds);
-                }
-                return $this->response->setJSON(['success' => true, 'message' => $message]);
-            } else {
-                return $this->response->setJSON(['success' => false, 'message' => 'Tidak ada produk yang dapat dihapus.']);
-            }
-        } catch (\Exception $e) {
-            return $this->response->setJSON(['success' => false, 'message' => 'Terjadi kesalahan: ' . $e->getMessage()]);
-        }
     }
 }

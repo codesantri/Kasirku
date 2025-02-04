@@ -61,6 +61,7 @@ if (!function_exists('inputTextIdr')) {
         string $value = '',
         string $errors = '',
         string $ph = 'Rupiah',
+        string $id = 'idrformat',
         string $label = '',
         array $attributes = []
     ): string {
@@ -277,5 +278,60 @@ if (!function_exists('btn_submit')) {
             <button type="submit" class="btn btn-primary">Simpan</button>
         </div>
         ';
+    }
+}
+
+
+if (!function_exists('inputRadio')) {
+    /**
+     * Generate a radio input group with options
+     *
+     * @param string $errors Error message to display
+     * @param string $title Title or label for the group
+     * @param array $options Array of radio options (name, id, value, title_option)
+     * @param mixed $selected Value of the selected option (for checking "checked" state)
+     * @return string Rendered HTML for the radio group
+     */
+    function inputRadio(
+        string $errors = '',
+        string $title = '',
+        array $options = [],
+        string $selected = '' // Added $selected to handle the old value
+    ): string {
+        $html = '<div class="form-group mb-3">';
+        $html .= '<label>' . htmlspecialchars($title, ENT_QUOTES) . '</label>';
+        $html .= '<div class="form-group d-flex">'; // Container for the radio buttons
+
+        foreach ($options as $option) {
+            // Check if the current option value is selected
+            $isChecked = ($option['value'] == $selected) ? 'checked' : '';
+
+            $html .= '
+            <div class="form-check mx-2 my-0 ">
+                <label class="form-check-label">
+                    <input 
+                        type="radio" 
+                        name="' . htmlspecialchars($option['name'], ENT_QUOTES) . '" 
+                        id="' . htmlspecialchars($option['id'], ENT_QUOTES) . '" 
+                        class="form-check-input" 
+                        value="' . htmlspecialchars($option['value'], ENT_QUOTES) . '" 
+                        ' . $isChecked . '
+                    >
+                    ' . htmlspecialchars($option['title_option'], ENT_QUOTES) . '
+                    <i class="input-helper"></i>
+                </label>
+            </div>';
+        }
+
+        $html .= '</div>'; // Close the container
+
+        // Display error message if any
+        if ($errors) {
+            $html .= '<small class="form-text text-danger">' . htmlspecialchars($errors, ENT_QUOTES) . '</small>';
+        }
+
+        $html .= '</div>';
+
+        return $html;
     }
 }

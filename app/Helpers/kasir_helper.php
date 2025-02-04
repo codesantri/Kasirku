@@ -1,7 +1,10 @@
 <?php
+
+use PharIo\Manifest\Url;
+
 if (!function_exists('linka')) {
     /**
-     * Membuat link menu dengan status aktif
+     * Membuat link menu dengan status aktif berdasarkan URL saat ini
      *
      * @param string $href URL tujuan (misalnya '/dashboard')
      * @param string $active Bagian URL yang digunakan untuk menandai status aktif
@@ -17,54 +20,76 @@ if (!function_exists('linka')) {
         string $label = '',
         string $classActive = 'active'
     ) {
-        $isActive = strpos(uri_string(), $active) === 0 ? $classActive : '';
+        $currentURL = uri_string();
+        $isActive = (strpos($currentURL, trim($active, '/')) === 0) ? $classActive : '';
+
+        // Pastikan base_url tidak menyebabkan redirect ke root (localhost:8080)
+        $url = !empty($href) ? base_url($href) : '#';
+
         return '
-        <li class="nav-item ' . $isActive . '">
-            <a href="' . base_url($href) . '" class="nav-link">
+        <li class="nav-item ' . esc($isActive) . '">
+            <a href="' . esc($url) . '" class="nav-link">
                 <span class="pcoded-micon">
-                    <i class="fa-solid ' . $icon . '"></i>
+                    <i class="fa-solid ' . esc($icon) . '"></i>
                 </span>
-                <span class="pcoded-mtext">' . $label . '</span>
+                <span class="pcoded-mtext">' . esc($label) . '</span>
             </a>
-        </li>
-        ';
+        </li>';
     }
 }
 
 if (!function_exists('links')) {
     /**
-     * Membuat menu dengan atau tanpa submenu
+     * Membuat menu dengan atau tanpa submenu dan menandai menu aktif berdasarkan URL
      *
      * @param string $label Label menu utama
      * @param string $icon Ikon Font Awesome untuk menu utama
-     * @param string $active Kelas CSS untuk menu aktif
+     * @param string $href Route utama untuk menu ini (default '#')
      * @param array $submenu Array submenu (opsional, format: ['Label' => 'URL'])
-     * @return string HTML untuk menu dan submenu
+     * @return string HTML untuk menu
      */
     function links(
         string $label,
         string $icon,
-        string $active = '',
+        string $href = '#',
         array $submenu = []
     ) {
+        $currentURL = uri_string();
+        $isActive = (strpos($currentURL, trim($href, '/')) === 0) ? 'active' : '';
+
+        // Jika ada submenu, periksa apakah salah satunya sedang aktif
         $hasSubmenu = !empty($submenu) ? ' pcoded-hasmenu' : '';
-        $isActive = $active ? $active : '';
+        foreach ($submenu as $subHref) {
+            if (strpos($currentURL, trim($subHref, '/')) === 0) {
+                $isActive = 'active';
+                $hasSubmenu = ' pcoded-hasmenu'; // Pastikan submenu tetap aktif
+                break;
+            }
+        }
+
+        // Pastikan href tidak kosong
+        $url = !empty($href) ? base_url($href) : '#';
 
         $html = '
         <li class="nav-item' . $hasSubmenu . ' ' . $isActive . '">
-            <a href="#!" class="nav-link">
+            <a href="#" class="nav-link">
                 <span class="pcoded-micon">
-                    <i class="fa-solid ' . $icon . '"></i>
+                    <i class="fa-solid ' . esc($icon) . '"></i>
                 </span>
-                <span class="pcoded-mtext">' . $label . '</span>
+                <span class="pcoded-mtext">' . esc($label) . '</span>
             </a>';
 
         if (!empty($submenu)) {
             $html .= '<ul class="pcoded-submenu">';
             foreach ($submenu as $subLabel => $subHref) {
+                // Cek apakah submenu aktif
+                $subActive = (strpos($currentURL, trim($subHref, '/')) === 0) ? 'active' : '';
+                $subUrl = !empty($subHref) ? base_url($subHref) : '#';
+
+                // Tambahkan kelas ke submenu jika cocok
                 $html .= '
-                <li>
-                    <a href="' . base_url($subHref) . '">' . $subLabel . '</a>
+                <li class="nav-item ' . $subActive . '">
+                    <a href="' . esc($subUrl) . '" class="nav-link">' . esc($subLabel) . '</a>
                 </li>';
             }
             $html .= '</ul>';
@@ -135,5 +160,71 @@ if (!function_exists('modalView')) {
                 </div>
             </div>
         </div>';
+    }
+}
+
+if (!function_exists('allCheked')) {
+    function allCheked()
+    {
+        return '
+            <th width="10">
+                <input type="checkbox" class="form-check-input" id="selectAll">
+                    All
+            </th>
+        ';
+    }
+}
+
+if (!function_exists('headTableAction')) {
+
+    function headTableAction(
+        string $href = '#',
+        string $label = ''
+
+    ) {
+        return '
+        <div>
+            <a href="' . $href . '" class="btn btn-sm border-0 mx-1 btn-success"> <i class="fa-solid fa-circle-plus"></i> ' . $label . '</a>
+            <button id="deleteSelected" class="btn btn-sm border-0 mx-1 btn-danger"><i class="fa-solid fa-trash"></i> Hapus</button>
+        </div>
+        ';
+    }
+}
+
+
+if (!function_exists('filter')) {
+    function filter($datasets)
+    {
+        $html = '<div class="d-flex gap-2">';
+
+        // Loop melalui setiap dataset
+        foreach ($datasets as $data) {
+            // Validasi data yang diperlukan
+            if (empty($data['idSelect']) || empty($data['dataOption'])) {
+                continue; // Lewati dataset yang tidak valid
+            }
+
+            // Default values
+            $defaultLabel = $data['label'] ?? 'Pilih Opsi';
+
+            // Dropdown Filter
+            $html .= '<select id="' . htmlspecialchars($data['idSelect']) . '" class="form-control form-control-sm w-auto">';
+            $html .= '<option value="">' . htmlspecialchars($defaultLabel) . '</option>';
+
+            foreach ($data['dataOption'] as $key => $value) {
+                $html .= '<option value="' . htmlspecialchars($key) . '">' . htmlspecialchars($value) . '</option>';
+            }
+
+            $html .= '</select>';
+        }
+
+        // Tombol Reset (Hanya Ditampilkan Sekali)
+        $html .= '<button id="refreshButton" class="btn btn-secondary btn-sm">
+                    <i class="fa-solid fa-rotate-right"></i>
+                  </button>';
+
+        $html .= '</div>'; // Penutup wrapper div
+
+        return $html;
     }
 }
