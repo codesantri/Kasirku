@@ -128,7 +128,7 @@ class ProductController extends BaseController
         } else {
             session()->setFlashdata('error', 'Produk gagal disimpan.');
         }
-        return redirect()->to(base_url('/produk'));
+        return redirect()->to(route_to('produk_index'));
     }
 
     public function edit(int $id)
@@ -191,7 +191,7 @@ class ProductController extends BaseController
         } else {
             session()->setFlashdata('error', 'Produk gagal diubah.');
         }
-        return redirect()->to(base_url('/produk'));
+        return redirect()->to(route_to('produk_index'));
     }
 
     public function delete(int $id)
@@ -215,6 +215,6 @@ class ProductController extends BaseController
         } catch (\Exception $e) {
             session()->setFlashdata('error', 'Terjadi kesalahan saat menghapus produk: ' . $e->getMessage());
         }
-        return redirect()->to(base_url('/produk'));
+        return redirect()->to(route_to('produk_index'));
     }
 }

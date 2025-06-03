@@ -23,6 +23,7 @@ class HomeController extends BaseController
         $this->category = new Category();
         $this->unit = new Unit();
         $this->sale = new Sale();
+        $this->cart = new Cart();
     }
 
     public function index()
@@ -69,9 +70,42 @@ class HomeController extends BaseController
 
     public function products()
     {
+        $products = $this->cart
+            ->select('carts.*, products.name as product_name, products.code as product_code, products.sell_price as product_price')
+            ->join('products', 'products.id = carts.product_id', 'left')
+            ->get()
+            ->getResult();
+        $total = array_sum(array_map(function ($product) {
+            return $product->product_price * $product->quantity;
+        }, $products));
+        $currentDate = date('Ymd');
+        $lastInvoice = $this->sale
+            ->select('invoice')
+            ->like('invoice', $currentDate)
+            ->orderBy('invoice', 'desc')
+            ->limit(1)
+            ->get()
+            ->getRow();
+        if ($lastInvoice) {
+            $invoiceParts = explode('-', $lastInvoice->invoice);
+            $lastInvoiceNumber = (int) $invoiceParts[2];
+        } else {
+            $lastInvoiceNumber = 0;
+        }
+
+        $invoiceNumber = str_pad($lastInvoiceNumber + 1, 3, '0', STR_PAD_LEFT);
+        $invoice = 'INV-' . $currentDate . '-' . $invoiceNumber;
         $categories = $this->category->get()->getResult();
         $units = $this->unit->get()->getResult();
-        return view('pages/home/products', compact('categories', 'units'));
+        $data = [
+            'title' => 'Data Produk',
+            'carts' => $products,
+            'total' => $total,
+            'invoice' => $invoice,
+            'categories' => $categories,
+            'units' => $units,
+        ];
+        return view('pages/home/products', $data);
     }
 
     public function getProducts()
@@ -86,37 +120,38 @@ class HomeController extends BaseController
         foreach ($data as &$row) {
             $category_id = isset($row->category_id) ? esc($row->category_id) : 'N/A';
             $unit_id = isset($row->unit_id) ? esc($row->unit_id) : 'N/A';
-
+            $image = $row->image !== null ? esc('uploads/products/' . $row->image) : 'https://placehold.co/35x30';
+            $product_name = esc($row->name);
+            $sell_price = esc(rp($row->sell_price));
+            $stock = esc($row->stock);
+            $product_id = esc($row->id);
+            $cart_url = route_to('cart_add', $product_id);
             $row->view = '
-                    <a class="col-xl-2 col-lg-3 col-md-3 col-sm-3 product-card my-2"
-                        data-category="' . $category_id . '"
-                        data-unit="' . $unit_id . '"
-                        data-name="' . strtolower(esc($row->name)) . '">
-                        <div class="card shadow">
-                            <img class="img-fluid" width="100%" height="50%" src="' . (esc($row->image) ?? 'https://placehold.co/50x50') . '" alt="' . esc($row->name) . '">
-                            <div class="card-body">
-                                <h6 class="card-title mb-0">' . esc($row->name) . '</h6>
-                                <strong class="m-0">' . esc(rp($row->sell_price)) . '</strong>
-                                <small class="m-0 text-muted">/ Stok ' . esc($row->stock) . '</small>
-                                <div class="d-flex justify-content-between">
-                                    <button class="btn btn-light btn-sm">
-                                        <i class="fa-solid fa-folder-open"></i>
-                                    </button>
-                                    <form action="' . route_to('cart_add', esc($row->id)) . '" method="POST">
-                                        ' . csrf_field() . '
-                                        <div class="input-group">
-                                            <input type="number" name="quantity" value="1" class="form-control text-center form-control-sm rounded-1">
-                                            <button type="submit" class="btn btn-sm btn-success rounded-1">
-                                                <i class="fa-solid fa-shopping-cart"></i>
-                                            </button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                    ';
+        <a class="col-3 product-card my-2"
+            data-category="' . $category_id . '"
+            data-unit="' . $unit_id . '"
+            data-name="' . strtolower($product_name) . '">
+            <div class="card shadow">
+                <img class="img-fluid" width="100%" style="height:50%;" 
+                    src="' . $image . '" 
+                    alt="' . $product_name . '">
+
+                <div class="card-body">
+                    <h5 class="card-title text-success mb-0">' . $product_name . '</h5>
+                    <strong class="m-0">' . $sell_price . '</strong>
+                    <small class="m-0 text-muted">/ Stok ' . $stock . '</small>
+                    <form action="' . $cart_url . '" method="POST">
+                        ' . csrf_field() . '
+                        <button type="submit" class="btn btn-sm btn-success col-12">
+                            Add To Cart
+                            <i class="fa-solid fa-shopping-cart"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </a>';
         }
+
         $recordsTotal = $this->product->countAllResults();
         $recordsFiltered = $this->product->filteredCount; // Pastikan Anda menghitung jumlah hasil yang difilter
 
@@ -130,3 +165,4 @@ class HomeController extends BaseController
         return $this->response->setJSON($output);
     }
 }
+                                            // <input type="number" name="quantity" value="1" class="form-control text-center form-control-sm rounded-1">

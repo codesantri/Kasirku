@@ -59,7 +59,9 @@ class CartController extends BaseController
 
     public function add(int $id)
     {
-        $quantity = (int) $this->request->getPost('quantity');
+        // $quantity = (int) $this->request->getPost('quantity');
+        $quantity = 1;
+
         if (empty($id) || $quantity <= 0) {
             session()->setFlashdata('error', '');
             return redirect()->back()->with('error', 'Tentukan kuantitas produk yang ingin dibeli');
@@ -102,7 +104,7 @@ class CartController extends BaseController
 
     public function update(int $id)
     {
-        $quantity = $this->request->getPost('quantity');
+        $quantity = 1;
         if (!is_numeric($quantity) || $quantity <= 0) {
             return redirect()->back()->with('error', 'Jumlah harus lebih dari 0.');
         }
@@ -113,6 +115,9 @@ class CartController extends BaseController
         $product = $this->product->find($cart['product_id']);
         if (!$product) {
             return redirect()->back()->with('error', 'Produk tidak ditemukan.');
+        }
+        if ($product['stock'] < $quantity) {
+            return redirect()->back()->with('error', 'Stok produk tidak dicukup.');
         }
         $productPrice = $product['sell_price'];
         $subtotal = $productPrice * $quantity;

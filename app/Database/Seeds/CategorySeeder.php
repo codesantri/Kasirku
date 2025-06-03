@@ -12,25 +12,9 @@ class CategorySeeder extends Seeder
     {
         $categories = [
             'Bahan Pokok',
-            'Makanan Ringan',
+            'Makanan',
             'Minuman',
-            'Produk Kebersihan',
-            'Perlengkapan Rumah Tangga',
-            'Obat-obatan',
-            'Peralatan Dapur',
-            'Produk Bayi',
-            'Bumbu Dapur',
-            'Cemilan Tradisional',
-            'Produk Susu',
-            'Rokok dan Tembakau',
-            'Es Krim dan Dessert',
-            'Peralatan Tulis dan Kantor',
-            'Perlengkapan Pribadi',
-            'Mainan Anak',
-            'Sembako',
-            'Produk Musiman',
-            'Perlengkapan Kendaraan',
-            'Lain-lain',
+            'Alat Tulis',
         ];
 
         $faker = Factory::create('id_ID');

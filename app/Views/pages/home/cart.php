@@ -51,7 +51,6 @@
                         </tfoot>
                     </table>
                 </div>
-
             </div>
         </div>
     </div>
@@ -95,7 +94,7 @@
                     name: 'cash',
                     id: 'cash',
                     value: 0,
-                    attributes: ['required' => 'required', 'onkeyup' => 'calculateChange()']
+                    attributes: ['required' => 'required']
                 ) ?>
                 <?= inputTextIdr(
                     label: 'Nominal Kembalian',
@@ -113,27 +112,4 @@
         </div>
     </div>
 </div>
-<?= $this->endSection(); ?>
-
-<?= $this->section('script') ?>
-<script>
-    $(document).ready(function() {
-        function calculateChange() {
-            let totalValue = $('input[name="total"]').val();
-            let cashValue = $('input[name="cash"]').val();
-
-            if (totalValue === undefined || cashValue === undefined) {
-                return;
-            }
-            console.log('Total Value:', totalValue);
-            console.log('Cash Value:', cashValue);
-            let total = totalValue ? parseInt(totalValue.replace(/[^0-9]/g, '')) : 0;
-            let cash = cashValue ? parseInt(cashValue.replace(/[^0-9]/g, '')) : 0;
-            let change = cash - total;
-            $('input[name="change"]').val(change > 0 ? formatRupiah(change.toString()) : '0');
-        }
-        $('input[name="cash"]').on('keyup change', calculateChange);
-    });
-</script>
-
 <?= $this->endSection(); ?>
